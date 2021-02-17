@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>terrain</title>
+  <link rel="stylesheet" href="assets/css/normalize.css">
+</head>
+<body>
+
+<script src="assets/js/helpers.js"></script> 
+<script src="assets/js/noise.js"></script> 
+<script src="assets/js/three.min.js"></script>
+<script src="assets/js/TrackballControls.js"></script>
+<script>
+  let scene, camera, renderer, controls;
+  let geometry, material;
+  let plain;
+
+  let growthLimit = 255;
+
+  let counter = 0;
+  let increment = 0;
+
+  let plainSize = 10000;
+  let verticesAmount = 100;
+  
+  const noise2d = new noise2D();
+
+  const coords = [];
+  let freq, freqInc;
+  let time, timeInc;
+
+  const init = () => {
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100000);
+
+    renderer = new THREE.WebGLRenderer(); // { antialias: true }
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor('#222');
+    document.body.appendChild(renderer.domElement);
+
+    controls = new THREE.TrackballControls(camera, renderer.domElement);
+		controls.addEventListener('change', () => {
+			renderer.render(scene, camera);
+    });
+    controls.rotateSpeed = 2;
+    // controls.zoomSpeed = 2;
+
+    create();
+    render();
+  };
+
+  const create = () => {
+    geometry = new THREE.PlaneGeometry(plainSize*2, plainSize*1.5, verticesAmount, verticesAmount);
+    material = new THREE.MeshBasicMaterial({ color: 0xaaaaaa, wireframe: true, transparent: true, opacity: 0.25, side: THREE.DoubleSide });
+    plain = new THREE.Mesh(geometry, material);
+
+    scene.add(plain);
+    camera.position.z = 1000;
+    // camera.position.x = -100000;
+    
+    plain.rotation.x = 120 * (Math.PI / 180); // 90 degrees to radians
+    // plain.position.x = -100000;
+
+
+    // for (let i = 0; i < plain.geometry.vertices.length; i += 1) {
+    //   const vert = plain.geometry.vertices[i];
+    //   // const x = i % (verticesAmount + 1);
+    //   // const y = Math.floor(i / (verticesAmount + 1));
+    //   freq = 0.0001;
+    //   // plain.geometry.vertices[i].z += getRndm(-growthLimit, growthLimit);
+    //   const noise = map(noise2d.noise(vert.x * freq, vert.y * freq), -1, 1, -growthLimit, growthLimit);
+    //   plain.geometry.vertices[i].z = noise;
+
+    //   // coords.push({ x, y });
+    // }
+
+    freq = 0.001;
+    time = 0.0001;
+
+    freqInc = 0.001;
+    timeInc = 0.05;
+
+
+    for (let i = 0; i < plain.geometry.vertices.length; i += 1) {
+      const vert = plain.geometry.vertices[i];
+      const noise = map(noise2d.noise(vert.x * freq + 100, vert.y * freq - time + 100), -1, 1, -growthLimit, growthLimit);
+      plain.geometry.vertices[i].z = noise;
+    }
+  };
+
+  const render = () => setTimeout(() => {
+    requestAnimationFrame(render);
+    renderer.render(scene, camera);
+    controls.update();
+
+    animate();
+  }, 1000 / 30);
+
+  const animate = () => {
+    // plain.rotation.x += 0.02;
+    // plain.position.y += 0.1;
+    // camera.position.z -= 0.1;
+
+    // for (let i = 0; i < plain.geometry.vertices.length; i += 1) {
+    //   plain.geometry.vertices[i].z = getRndm(-growthLimit, growthLimit);
+    // }
+    // plain.geometry.verticesNeedUpdate = true;
+
+    // for (let i = 0; i < plain.geometry.vertices.length; i += 1) {
+    //   plain.geometry.vertices[i].z = map(noise2d.noise(i, counter), -1, 1, -growthLimit, growthLimit);
+    // }
+    // plain.geometry.verticesNeedUpdate = true;
+
+    // counter += 0.0005;
+
+    // freq += 0.00001;
+
+
+
+    time += timeInc;
+    for (let i = 0; i < plain.geometry.vertices.length; i += 1) {
+      const vert = plain.geometry.vertices[i];
+      const noise = map(noise2d.noise(vert.x * freq + 100 - time, vert.y * freq - time + 100), -1, 1, -growthLimit, growthLimit);
+      plain.geometry.vertices[i].z = noise;
+    }
+    plain.geometry.verticesNeedUpdate = true;
+  };
+
+  window.addEventListener('load', init);
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+</script>
+</body>
+</html>
