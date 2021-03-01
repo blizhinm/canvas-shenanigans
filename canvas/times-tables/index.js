@@ -1,18 +1,25 @@
-let noLoop = true;
+let noLoop;
+let noText;
+let timeoutInterval;
 
 let canvas, ctx;
 let bgcol;
 let width, height;
 let framerate;
 
-let pointsAmount = 360;
+let pointsAmount;
 let points;
 let r;
 
 const init = () => {
+  noLoop = false;
+  noText = true;
+  timeoutInterval = 3000;
+  pointsAmount = 360;
+
   width = window.innerWidth;
   height = window.innerHeight;
-  framerate = 30; // 60
+  framerate = 60;
 
   canvas = document.getElementById('canvas');
   canvas.width = width;
@@ -22,6 +29,7 @@ const init = () => {
   ctx = canvas.getContext('2d');
   ctx.fillStyle = bgcol;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.font = '14px Arial';
 
   points = [];
 
@@ -53,48 +61,64 @@ const create = () => {
 };
 
 const render = () => {
+  let currentNumber = 1;
+  let currentMult = 2;
+  let currentPoint = points[currentNumber];
+
+  let timeoutId = null;
+
   const start = () => {
     ctx.fillStyle = bgcol;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     ctx.strokeStyle = 'rgba(255,255,255,0.25)';
-    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+    ctx.fillStyle = 'rgba(255,255,255,1)';
 
     drawCircle(ctx, width / 2, height / 2, r);
 
     for (let i = 0; i < points.length; i += 1) {
-      drawPoint(ctx, points[i].x, points[i].y, 3);
+      drawPoint(ctx, points[i].x, points[i].y, 1);
     }
-  };
 
-  let currentNumber = 0;
-  let currentPoint = points[currentNumber];
-
-  const loop = () => {
-    if (currentNumber > 0 && currentNumber % pointsAmount === 0) {
-      // start();
+    if (noText) {
       return;
     }
-    // start();
-    console.log('loop');
-    const nextPoint = points[Math.floor((currentNumber * 1111)) % pointsAmount];
+
+    ctx.fillText(`x * ${currentMult}`, width / 2, ((height / 2) + r) + 50);
+  };
+
+  const loop = () => {
+    if (noLoop) {
+      return;
+    }
+
+    if (currentNumber % pointsAmount === 0) {
+      if (timeoutId) {
+        return;
+      }
+
+      timeoutId = setTimeout(() => {
+        currentMult += 1;
+        currentNumber = 1;
+        currentPoint = points[0];
+        timeoutId = null;
+
+        start();
+      }, timeoutInterval);
+
+      return;
+    }
+
+    const nextPoint = points[Math.floor((currentNumber * currentMult)) % pointsAmount];
 
     drawLine(ctx, currentPoint.x, currentPoint.y, nextPoint.x, nextPoint.y);
-    // console.log({ currentNumber, result: currentNumber * 2, index: (currentNumber * 2) % pointsAmount });
 
     currentNumber += 1;
     currentPoint = points[currentNumber % pointsAmount];
   };
 
   start();
-
-  // if (noLoop) {
-  //   return;
-  // }
-
-  // setInterval(start, 1000 / framerate);
   setInterval(loop, 1000 / framerate);
 };
-
 
 window.addEventListener('load', init);
