@@ -62,10 +62,11 @@ const create = () => {
 };
 
 const render = () => {
+  const CURRENT_MULT_INCREMENT = 1;
   let currentNumber = 0;
   let currentMult = 0;
   let [currentPoint] = points;
-  const CURRENT_MULT_INCREMENT = 1;
+  let isForwards = true;
 
   let timeoutId = null;
 
@@ -78,7 +79,7 @@ const render = () => {
 
     drawCircle(ctx, width / 2, height / 2, r);
 
-    currentNumber = 0;
+    currentNumber = isForwards ? 0 : pointsAmount;
     [currentPoint] = points;
 
     for (let i = 0; i < points.length; i += 1) {
@@ -103,9 +104,12 @@ const render = () => {
       return;
     }
 
-    if (currentNumber > 0 && currentNumber % pointsAmount === 0) {
+    if (
+        isForwards && currentNumber > 0 && currentNumber % pointsAmount === 0
+        || !isForwards && currentNumber < 360 && currentNumber % pointsAmount === 0
+       ) {
       timeoutId = setTimeout(() => {
-        currentMult += CURRENT_MULT_INCREMENT;
+        isForwards = !isForwards;
         [currentPoint] = points;
         timeoutId = null;
 
@@ -117,7 +121,12 @@ const render = () => {
 
     drawLine(ctx, currentPoint.x, currentPoint.y, nextPoint.x, nextPoint.y);
 
-    currentNumber += 1;
+    if (isForwards) {
+      currentNumber += 1;
+    } else {
+      currentNumber -= 1;
+    }
+
     currentPoint = points[currentNumber % pointsAmount];
   };
 
@@ -127,6 +136,7 @@ const render = () => {
   const reset = () => {
     clearTimeout(timeoutId);
     timeoutId = null;
+    isForwards = true;
 
     start();
   };
