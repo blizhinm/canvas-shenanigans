@@ -1,5 +1,6 @@
 let noLoop;
 let noText;
+let timeoutInterval;
 
 let canvas, ctx;
 let bgcol;
@@ -13,12 +14,13 @@ let r;
 const init = () => {
   noLoop = false;
   noText = false;
+  timeoutInterval = 3000;
   pointsAmount = 360;
 
   pixelRatio = window.devicePixelRatio;
   width = window.innerWidth * pixelRatio;
   height = window.innerHeight * pixelRatio;
-  framerate = 60;
+  framerate = 120;
 
   canvas = document.getElementById('canvas');
   canvas.width = width;
@@ -63,6 +65,9 @@ const render = () => {
   let currentNumber = 0;
   let currentMult = 0;
   let [currentPoint] = points;
+  const CURRENT_MULT_INCREMENT = 1;
+
+  let timeoutId = null;
 
   const start = () => {
     ctx.fillStyle = bgcol;
@@ -74,16 +79,10 @@ const render = () => {
     drawCircle(ctx, width / 2, height / 2, r);
 
     currentNumber = 0;
+    [currentPoint] = points;
 
     for (let i = 0; i < points.length; i += 1) {
       drawPoint(ctx, points[i].x, points[i].y, 1);
-
-      const nextPoint = points[Math.floor((currentNumber * currentMult)) % pointsAmount];
-
-      drawLine(ctx, currentPoint.x, currentPoint.y, nextPoint.x, nextPoint.y);
-
-      currentNumber += 1;
-      currentPoint = points[currentNumber % pointsAmount];
     }
 
     if (noText) {
@@ -99,38 +98,73 @@ const render = () => {
     );
   };
 
+  const loop = () => {
+    if (noLoop || timeoutId) {
+      return;
+    }
+
+    if (currentNumber > 0 && currentNumber % pointsAmount === 0) {
+      timeoutId = setTimeout(() => {
+        currentMult += CURRENT_MULT_INCREMENT;
+        [currentPoint] = points;
+        timeoutId = null;
+
+        start();
+      }, timeoutInterval);
+    }
+
+    const nextPoint = points[(currentNumber * currentMult) % pointsAmount];
+
+    drawLine(ctx, currentPoint.x, currentPoint.y, nextPoint.x, nextPoint.y);
+
+    currentNumber += 1;
+    currentPoint = points[currentNumber % pointsAmount];
+  };
+
   start();
+  setInterval(loop, 1000 / framerate);
+
+  const reset = () => {
+    clearTimeout(timeoutId);
+    timeoutId = null;
+
+    start();
+  };
 
   document.addEventListener('mousedown', (event) => {
     const { clientX } = event;
 
     if (clientX >= window.innerWidth / 2) {
-      currentMult += 1;
+      currentMult += CURRENT_MULT_INCREMENT;
     } else {
       if (currentMult <= 0) {
         return;
       }
 
-      currentMult -= 1;
+      currentMult -= CURRENT_MULT_INCREMENT;
     }
 
-    start();
+    reset();
   });
 
   window.addEventListener('keydown', (event) => {
     const { code } = event;
 
+    if (code !== 'ArrowRight' && code !== 'ArrowLeft') {
+      return;
+    }
+
     if (code === 'ArrowRight') {
-      currentMult += 1;
+      currentMult += CURRENT_MULT_INCREMENT;
     } else if (code === 'ArrowLeft') {
       if (currentMult <= 0) {
         return;
       }
 
-      currentMult -= 1;
+      currentMult -= CURRENT_MULT_INCREMENT;
     }
 
-    start();
+    reset();
   });
 };
 
