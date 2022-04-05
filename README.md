@@ -1,7 +1,10 @@
 # Coding Challenges from [The Coding Train](https://thecodingtrain.com/CodingChallenges/)
-## Written in vanilla js to mess around
-### ---
-## To begin:
+
+### Core ideas from challenges written with pure javascript to mess around
+
+***
+
+## Dev
 - Install live server
 ```bash
 npm i
