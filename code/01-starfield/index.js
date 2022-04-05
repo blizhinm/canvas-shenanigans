@@ -3,6 +3,9 @@ const SCREEN_HEIGHT = window.innerHeight * window.devicePixelRatio;
 const SCREEN_HALF_WIDTH = (window.innerWidth * window.devicePixelRatio) / 2;
 const SCREEN_HALF_HEIGHT = (window.innerHeight * window.devicePixelRatio) / 2;
 
+let MOUSE_X = (window.innerWidth * window.devicePixelRatio) / 2;
+let MOUSE_Y = (window.innerHeight * window.devicePixelRatio) / 2;
+
 /** @type {HTMLCanvasElement} */
 const canvas = document.getElementById('canvas');
 canvas.width = SCREEN_WIDTH;
@@ -79,7 +82,12 @@ for (let i = 0; i < 10000; i += 1) {
   requestAnimationFrame(render);
 })();
 
-window.addEventListener('keypress', ({ code }) => {
+document.addEventListener('mousemove', ({ clientX, clientY }) => {
+  MOUSE_X = clientX * window.devicePixelRatio;
+  MOUSE_Y = clientY * window.devicePixelRatio;
+});
+
+document.addEventListener('keypress', ({ code }) => {
   if (code !== 'Space') {
     return;
   }
@@ -87,4 +95,4 @@ window.addEventListener('keypress', ({ code }) => {
   isSolidColor = !isSolidColor;
 });
 
-window.addEventListener('dblclick', () => (isSolidColor = !isSolidColor));
+document.addEventListener('dblclick', () => (isSolidColor = !isSolidColor));
