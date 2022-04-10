@@ -1,6 +1,6 @@
 # Coding Challenges from [The Coding Train](https://thecodingtrain.com/CodingChallenges/)
 
-### Core ideas from challenges written with pure javascript to mess around
+### Core ideas from challenges written with javascript to mess around
 
 ***
 
