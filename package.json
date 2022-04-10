@@ -4,6 +4,7 @@
     "start:network": "live-server --verbose --no-browser --port=35729 --host=0.0.0.0 --no-css-inject --wait=1000 ./code"
   },
   "devDependencies": {
+    "@types/three": "^0.139.0",
     "live-server": "^1.2.1"
   }
 }
