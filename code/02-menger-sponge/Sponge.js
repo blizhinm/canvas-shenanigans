@@ -2,6 +2,7 @@ class Sponge {
   constructor() {
     this.material = new THREE.MeshPhongMaterial({ color: 0x999999 });
     this.currentSize = 27;
+    this.cubesSpacing = 1.1;
     this.cubes = [];
 
     const cube = this.createCube(this.currentSize, [0, 0, 0]);
@@ -46,9 +47,9 @@ class Sponge {
           }
 
           const cube = this.createCube(this.currentSize, [
-            x * this.currentSize + rootCube.position.x,
-            y * this.currentSize + rootCube.position.y,
-            z * this.currentSize + rootCube.position.z,
+            x * this.cubesSpacing * this.currentSize + rootCube.position.x,
+            y * this.cubesSpacing * this.currentSize + rootCube.position.y,
+            z * this.cubesSpacing * this.currentSize + rootCube.position.z,
           ]);
 
           generatedCubes.push(cube);
