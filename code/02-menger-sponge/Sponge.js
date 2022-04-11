@@ -1,37 +1,26 @@
 class Sponge {
   constructor() {
     this.material = new THREE.MeshPhongMaterial({ color: 0x999999 });
-    this.currentSize = 27;
-    this.cubesSpacing = 1.1;
-    this.cubes = [];
+    this.currentSize = 81;
+    this.cubesSpacing = 1;
+    this.cubesPositions = ['0,0,0'];
 
-    const cube = this.createCube(this.currentSize, [0, 0, 0]);
-
-    scene.add(cube);
-    this.cubes.push(cube);
-
-    camera.position.z = this.currentSize * 1.75;
-  }
-
-  createCube(size, position) {
-    if (!size) {
-      size = 1;
-    }
-
-    const newCube = new THREE.Mesh(
-      new THREE.BoxGeometry(size, size, size),
+    this.form = new THREE.Mesh(
+      new THREE.BoxBufferGeometry(this.currentSize, this.currentSize, this.currentSize),
       this.material
     );
 
-    if (position) {
-      newCube.position.set(...position);
-    }
-
-    return newCube;
+    scene.add(this.form);
+    camera.position.z = this.currentSize * 1.75;
   }
 
-  generate(rootCube) {
-    const generatedCubes = [];
+  generate(
+    /** @type {THREE.Mesh<THREE.BoxGeometry, THREE.MeshPhongMaterial>} */
+    rootCubePosition
+  ) {
+    const [rootX, rootY, rootZ] = rootCubePosition.split(',');
+    const generatedPositions = [];
+    const generatedGeometries = [];
 
     for (let x = -1; x <= 1; x += 1) {
       const absX = Math.abs(x);
@@ -46,21 +35,38 @@ class Sponge {
             continue;
           }
 
-          const cube = this.createCube(this.currentSize, [
-            x * this.cubesSpacing * this.currentSize + rootCube.position.x,
-            y * this.cubesSpacing * this.currentSize + rootCube.position.y,
-            z * this.cubesSpacing * this.currentSize + rootCube.position.z,
-          ]);
+          const newX = x * this.cubesSpacing * this.currentSize + parseInt(rootX, 10);
+          const newY = y * this.cubesSpacing * this.currentSize + parseInt(rootY, 10);
+          const newZ = z * this.cubesSpacing * this.currentSize + parseInt(rootZ, 10);
+          const geometry = new THREE.BoxBufferGeometry(
+            this.currentSize,
+            this.currentSize,
+            this.currentSize
+          );
 
-          generatedCubes.push(cube);
+          geometry.setAttribute(
+            'position',
+            new THREE.BufferAttribute(
+              geometry.attributes.position.array.map((coor, index) => {
+                if (index % 3 === 0) {
+                  return coor + newX;
+                } else if (index % 3 === 1) {
+                  return coor + newY;
+                } else if (index % 3 === 2) {
+                  return coor + newZ;
+                }
+              }),
+              3
+            )
+          );
+
+          generatedPositions.push(`${newX},${newY},${newZ}`);
+          generatedGeometries.push(geometry);
         }
       }
     }
 
-    scene.remove(rootCube);
-    scene.add(...generatedCubes);
-
-    return generatedCubes;
+    return [generatedPositions, generatedGeometries];
   }
 
   next() {
@@ -68,13 +74,31 @@ class Sponge {
       return;
     }
 
-    let newCubes = [];
+    console.log(`Generating new set of ${this.cubesPositions.length * 20}`);
+
+    const start = new Date();
+    let newPositions = [];
+    let newGeometries = [];
 
     this.currentSize = this.currentSize / 3;
-    this.cubes.forEach((cube) => {
-      newCubes = newCubes.concat(this.generate(cube));
+    this.cubesPositions.forEach((position) => {
+      const [positions, geometries] = this.generate(position);
+
+      newPositions = newPositions.concat(positions);
+      newGeometries = newGeometries.concat(geometries);
     });
 
-    this.cubes = newCubes;
+    if (this.form) {
+      scene.remove(this.form);
+    }
+
+    this.cubesPositions = newPositions;
+    this.form = new THREE.Mesh(
+      THREE.BufferGeometryUtils.mergeBufferGeometries(newGeometries),
+      this.material
+    );
+
+    scene.add(this.form);
+    console.log(`Done in ${(new Date() - start) / 1000} seconds`);
   }
 }
