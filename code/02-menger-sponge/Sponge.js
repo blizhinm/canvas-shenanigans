@@ -61,9 +61,13 @@ class Sponge {
       return;
     }
 
-    console.log(`Generating new set of ${this.cubesPositions.length * 20}`);
-
     const start = new Date();
+    console.log(
+      `${start.toLocaleTimeString()} --- Generating new set of ${
+        this.cubesPositions.length * 20
+      }`
+    );
+
     let newPositions = [];
     let newGeometries = [];
 
@@ -84,6 +88,10 @@ class Sponge {
     );
 
     scene.add(this.form);
-    console.log(`Done in ${(new Date() - start) / 1000} seconds`);
+
+    const end = new Date();
+    console.log(
+      `${end.toLocaleTimeString()} --- Done in ${(end - start) / 1000} seconds`
+    );
   }
 }
