@@ -5,6 +5,8 @@ class Sponge {
     this.currentSize = Math.pow(3, this.maxLevel);
     this.cubesSpacing = 1;
     this.cubesPositions = ['0,0,0'];
+    this.cubesPositionsSwap = [];
+    this.geometries = [];
 
     this.form = new THREE.Mesh(
       new THREE.BoxBufferGeometry(this.currentSize, this.currentSize, this.currentSize),
@@ -20,8 +22,6 @@ class Sponge {
     const rootX = parseInt(rx, 10);
     const rootY = parseInt(ry, 10);
     const rootZ = parseInt(rz, 10);
-    const generatedPositions = [];
-    const generatedGeometries = [];
 
     for (let x = -1; x <= 1; x += 1) {
       const absX = Math.abs(x);
@@ -47,13 +47,11 @@ class Sponge {
           );
 
           geometry.translate(newX, newY, newZ);
-          generatedPositions.push(`${newX},${newY},${newZ}`);
-          generatedGeometries.push(geometry);
+          this.cubesPositionsSwap.push(`${newX},${newY},${newZ}`);
+          this.geometries.push(geometry);
         }
       }
     }
-
-    return [generatedPositions, generatedGeometries];
   }
 
   next() {
@@ -68,24 +66,19 @@ class Sponge {
       }`
     );
 
-    let newPositions = [];
-    let newGeometries = [];
-
     scene.remove(this.form);
 
+    this.geometries = [];
     this.currentSize = this.currentSize / 3;
-    this.cubesPositions.forEach((position) => {
-      const [positions, geometries] = this.generate(position);
+    this.cubesPositions.forEach((position) => this.generate(position));
 
-      newPositions = newPositions.concat(positions);
-      newGeometries = newGeometries.concat(geometries);
-    });
-
-    this.cubesPositions = newPositions;
     this.form = new THREE.Mesh(
-      THREE.BufferGeometryUtils.mergeBufferGeometries(newGeometries),
+      THREE.BufferGeometryUtils.mergeBufferGeometries(this.geometries),
       this.material
     );
+
+    this.cubesPositions = [...this.cubesPositionsSwap];
+    this.cubesPositionsSwap = [];
 
     scene.add(this.form);
 
