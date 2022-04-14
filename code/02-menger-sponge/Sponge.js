@@ -77,7 +77,7 @@ class Sponge {
       this.material
     );
 
-    this.cubesPositions = [...this.cubesPositionsSwap];
+    this.cubesPositions = this.cubesPositionsSwap;
     this.cubesPositionsSwap = [];
 
     scene.add(this.form);
