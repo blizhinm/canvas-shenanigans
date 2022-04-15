@@ -11,9 +11,9 @@ canvas.height = SCREEN_HEIGHT;
 const BACKGROUND_COLOR = 'rgba(0,0,0,1)';
 const MAIN_COLOR = 'rgba(255,255,255,1)';
 
-let MAX_WIDTH = 3;
+let MAX_WIDTH = 2;
 let MAX_HEIGHT = 25;
-let MAX_SPEED = 50;
+let MAX_SPEED = 40;
 
 /** @type {CanvasRenderingContext2D} */
 const ctx2d = canvas.getContext('2d');
@@ -46,6 +46,7 @@ class Drop {
 
     if (this.y >= SCREEN_HALF_HEIGHT) {
       this.y = -SCREEN_HALF_HEIGHT - this.height;
+      this.x = getRandomInt(-SCREEN_HALF_WIDTH, SCREEN_HALF_WIDTH);
     }
   }
 }
