@@ -1,6 +1,6 @@
-# Coding Challenges from [The Coding Train](https://thecodingtrain.com/CodingChallenges/)
+# Canvas shenanigans
 
-### Core ideas from challenges written with javascript to mess around
+### Check it out - https://canvas.blizhinm.com
 
 ***
 

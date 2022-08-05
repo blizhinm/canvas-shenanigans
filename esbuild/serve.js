@@ -1,55 +1,75 @@
+const esbuild = require('esbuild');
 const fs = require('fs');
 
-const DIRECTORY_REGEX = /\d{1,}-\w+/;
 const ROOT_DIRECTORY = 'code';
-const OUTPUT_FOLDER = 'dist';
-const BASE_CSS_FILENAME = 'base.css';
+const OUTPUT_DIRECTORY = 'dist';
+const OUTPUT_CODE_DIRECTORY = `${OUTPUT_DIRECTORY}/${ROOT_DIRECTORY}`;
 
-const entryPoints = [];
-let fileNames;
+function findFiles(
+  path = ROOT_DIRECTORY,
+  htmls = [],
+  entries = [],
+  extras = []
+) {
+  let files;
 
-try {
-  fileNames = fs.readdirSync(ROOT_DIRECTORY);
-} catch (err) {
-  console.error(err);
-  return;
+  try {
+    files = fs.readdirSync(path, { withFileTypes: true });
+  } catch (err) {
+    console.error(err);
+  }
+
+  files.forEach((file) => {
+    if (file.isDirectory()) {
+      findFiles(`${path}/${file.name}`, htmls, entries, extras);
+    } else {
+      if (file.name === 'index.html') {
+        htmls.push(`${path}/${file.name}`);
+      } else if (file.name === 'index.js') {
+        entries.push(`${path}/${file.name}`);
+      } else if (file.name === 'base.css') {
+        extras.push(`${path}/${file.name}`);
+      }
+    }
+  });
+
+  return {
+    htmls,
+    entries,
+    extras,
+  };
 }
 
-fileNames.forEach((fileName) => {
-  const dirName = `${ROOT_DIRECTORY}/${fileName}`;
-  const isDir = fs.lstatSync(dirName).isDirectory();
+const files = findFiles();
 
-  if (isDir && DIRECTORY_REGEX.test(fileName)) {
-    const outputPath = `${OUTPUT_FOLDER}/${fileName}`;
+files.htmls.forEach((htmlFile) => {
+  const outputFile = htmlFile.replace(
+    `${ROOT_DIRECTORY}/`,
+    `${OUTPUT_CODE_DIRECTORY}/`
+  );
 
-    fs.mkdirSync(outputPath, { recursive: true });
-    fs.copyFileSync(
-      `${dirName}/index.html`,
-      `${OUTPUT_FOLDER}/${fileName}/index.html`
-    );
-
-    entryPoints.push(`${dirName}/index.js`);
-  }
-
-  if (!isDir && fileName === BASE_CSS_FILENAME) {
-    fs.copyFileSync(
-      `${ROOT_DIRECTORY}/${BASE_CSS_FILENAME}`,
-      `${OUTPUT_FOLDER}/${BASE_CSS_FILENAME}`
-    );
-  }
+  fs.mkdirSync(outputFile.replace('/index.html', ''), { recursive: true });
+  fs.copyFileSync(htmlFile, outputFile);
 });
 
-const esbuild = require('esbuild');
+files.extras.forEach((extraFile) => {
+  const outputFile = extraFile.replace(
+    `${ROOT_DIRECTORY}/`,
+    `${OUTPUT_DIRECTORY}/`
+  );
+
+  fs.copyFileSync(extraFile, outputFile);
+});
 
 esbuild.serve(
   {
     port: 8810,
-    servedir: 'dist',
+    servedir: OUTPUT_DIRECTORY,
   },
   {
-    entryPoints,
+    entryPoints: files.entries,
     entryNames: '[dir]/[name]',
     bundle: true,
-    outdir: 'dist',
+    outdir: OUTPUT_CODE_DIRECTORY,
   }
 );
