@@ -1,4 +1,4 @@
-import { MeshPhongMaterial, BoxBufferGeometry, Mesh } from 'three';
+import { BoxBufferGeometry, Mesh, MeshPhongMaterial } from 'three';
 import { mergeBufferGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
 export default class Sponge {

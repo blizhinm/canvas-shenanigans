@@ -1,9 +1,9 @@
 import {
-  Scene,
-  PerspectiveCamera,
-  WebGLRenderer,
   AmbientLight,
   DirectionalLight,
+  PerspectiveCamera,
+  Scene,
+  WebGLRenderer,
 } from 'three';
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls.js';
 
