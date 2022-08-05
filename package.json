@@ -1,10 +1,11 @@
 {
   "scripts": {
-    "start": "live-server --verbose --no-browser --port=35729 --host=127.0.0.1 --no-css-inject --wait=1000 ./code",
-    "start:network": "live-server --verbose --no-browser --port=35729 --host=0.0.0.0 --no-css-inject --wait=1000 ./code"
+    "serve": "node ./esbuild/serve.js",
+    "build": "node ./esbuild/build.js"
   },
   "devDependencies": {
     "@types/three": "^0.139.0",
-    "live-server": "^1.2.1"
+    "esbuild": "^0.14.49",
+    "three": "^0.143.0"
   }
 }

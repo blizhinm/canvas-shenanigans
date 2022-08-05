@@ -5,12 +5,22 @@
 ***
 
 ## Dev
-- Install live server
+- Install dependencies
 ```bash
-npm i
+yarn
 ```
 - Start server
 ```bash
-npm run start
+yarn serve
 ```
-- Open browser and navigate to `http://localhost:35729`
+- Open browser and navigate to `http://localhost:8810`
+
+## Build
+- Install dependencies
+```bash
+yarn
+```
+- Build
+```bash
+yarn build
+```

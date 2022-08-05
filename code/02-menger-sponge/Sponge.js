@@ -1,20 +1,30 @@
-class Sponge {
-  constructor() {
+import { MeshPhongMaterial, BoxBufferGeometry, Mesh } from 'three';
+import { mergeBufferGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+
+export default class Sponge {
+  constructor(scene, camera) {
+    this.scene = scene;
+    this.camera = camera;
+
     this.maxLevel = 4;
-    this.material = new THREE.MeshPhongMaterial({ color: 0x999999 });
+    this.material = new MeshPhongMaterial({ color: 0x999999 });
     this.currentSize = Math.pow(3, this.maxLevel);
     this.cubesSpacing = 1;
     this.cubesPositions = ['0,0,0'];
     this.cubesPositionsSwap = [];
     this.geometries = [];
 
-    this.form = new THREE.Mesh(
-      new THREE.BoxBufferGeometry(this.currentSize, this.currentSize, this.currentSize),
+    this.form = new Mesh(
+      new BoxBufferGeometry(
+        this.currentSize,
+        this.currentSize,
+        this.currentSize
+      ),
       this.material
     );
 
-    scene.add(this.form);
-    camera.position.z = this.currentSize * 1.75;
+    this.scene.add(this.form);
+    this.camera.position.z = this.currentSize * 1.75;
   }
 
   generate(rootCubePosition) {
@@ -40,7 +50,7 @@ class Sponge {
           }
 
           const newZ = z * this.cubesSpacing * this.currentSize + rootZ;
-          const geometry = new THREE.BoxBufferGeometry(
+          const geometry = new BoxBufferGeometry(
             this.currentSize,
             this.currentSize,
             this.currentSize
@@ -66,21 +76,18 @@ class Sponge {
       }`
     );
 
-    scene.remove(this.form);
+    this.scene.remove(this.form);
 
     this.geometries = [];
     this.currentSize = this.currentSize / 3;
     this.cubesPositions.forEach((position) => this.generate(position));
 
-    this.form = new THREE.Mesh(
-      THREE.BufferGeometryUtils.mergeBufferGeometries(this.geometries),
-      this.material
-    );
+    this.form = new Mesh(mergeBufferGeometries(this.geometries), this.material);
 
     this.cubesPositions = this.cubesPositionsSwap;
     this.cubesPositionsSwap = [];
 
-    scene.add(this.form);
+    this.scene.add(this.form);
 
     const end = new Date();
     console.log(
