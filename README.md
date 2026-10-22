@@ -1,6 +1,6 @@
 # Canvas shenanigans
 
-### Check it out - https://canvas.blizhinm.com](https://canvas.blizhinm.space/code/
+### Check it out - https://canvas.blizhinm.space/code/
 
 ***
 
